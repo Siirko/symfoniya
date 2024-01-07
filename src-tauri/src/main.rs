@@ -14,6 +14,7 @@ mod db;
 mod music;
 use crate::{api::*, music::player::Player};
 use db::{database, state::DbState};
+use log::info;
 use music::{
     async_process::{async_process_model, AsyncProcInputTx},
     player::MusicPlayer,
@@ -99,11 +100,33 @@ fn main() {
             music::ytdlp_wrapper::download_audio_from_links,
         ])
         .setup(|app| {
+            // init database
             let handle = app.handle();
             let app_state: State<DbState> = handle.state();
             let db =
                 database::initialize_database(&handle).expect("Database initialize should succeed");
             *app_state.db.lock().unwrap() = Some(db);
+
+            // check if ytdlp is installed
+            match music::ytdlp_wrapper::check_ytdl_bin() {
+                Ok(_) => {}
+                Err(_) => {
+                    let app_dir = handle
+                        .path_resolver()
+                        .app_data_dir()
+                        .expect("The app data directory should exist.");
+                    info!(
+                        "yt-dlp not found, downloading it at {:?}",
+                        app_dir.as_os_str()
+                    );
+                    tauri::async_runtime::spawn(async move {
+                        let path = youtube_dl::download_yt_dlp(app_dir.as_os_str())
+                            .await
+                            .unwrap();
+                        assert!(path.is_file(), "downloaded file should exist");
+                    });
+                }
+            }
 
             tauri::async_runtime::spawn(async move {
                 async_process_model(async_process_input_rx, async_process_output_tx).await

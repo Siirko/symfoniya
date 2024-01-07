@@ -5365,6 +5365,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc791a982b545c7392ea685957d39bbac4a716667b46d72a1d4c384065205ab9"
 dependencies = [
  "log",
+ "reqwest",
  "serde",
  "serde_json",
  "tokio",

@@ -173,7 +173,7 @@ pub fn create_audio(path: PathBuf, format: FileFormat) -> _Audio {
         None => tagged_file.first_tag().unwrap_or(&tmp),
     };
     // picture can be None
-    let picture = tag.pictures().get(0);
+    let picture = tag.pictures().first();
     info!("{:?}", picture);
     let cover = match picture {
         Some(picture) => general_purpose::STANDARD_NO_PAD.encode(picture.data()),

@@ -30,7 +30,7 @@ env_logger = "0.10.0"
 log="0.4.20"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev", features = ["colored"] }
 futures = "0.3.29"
-youtube_dl = { version = "0.9.0", features = ["tokio"] }
+youtube_dl = { version = "0.9.0", features = ["tokio", "downloader-native-tls"] }
 tokio = { version = "1.20.1", features = ["full"] }
 base64 = { version = "0.21.5" }
 

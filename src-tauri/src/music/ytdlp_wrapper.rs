@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use futures::StreamExt;
 use youtube_dl::{Error, YoutubeDl, YoutubeDlOutput};
 
@@ -82,6 +84,20 @@ async fn download_audio(url: &str, path: &str) -> Result<YoutubeDlOutput, Error>
         .extra_arg("--no-simulate")
         .extra_arg("--no-progress")
         .run_async().await
+}
+
+pub fn check_ytdl_bin() -> Result<bool, String> {
+    // we check if user has yt-dlp installed
+    match Command::new("yt-dlp").arg("--version").output() {
+        Ok(_) => Ok(true),
+        Err(e) => {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                Err("yt-dlp not found".to_string())
+            } else {
+                Err(e.to_string())
+            }
+        }
+    }
 }
 
 #[tauri::command]
